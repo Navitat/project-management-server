@@ -1,4 +1,5 @@
 const router = require("express").Router();
+const mongoose = require("mongoose");
 
 const Project = require("../models/Project.model");
 const Task = require("../models/Task.model");
@@ -29,6 +30,27 @@ router.get("/projects", (req, res, next) => {
       console.log("Error while getting projects");
       console.log(error);
       res.status(500).json({ message: "Error while getting projects" });
+    });
+});
+
+// GET /api/projects/:projectId - Retrieves specific project by id
+router.get("/projects/:projectId", (req, res, next) => {
+  const { projectId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(projectId)) {
+    res.status(400).json({ message: "Specified id is not valid" });
+    return;
+  }
+
+  Project.findById(projectId)
+    .populate("tasks")
+    .then((project) => {
+      res.status(200).json(project);
+    })
+    .catch((error) => {
+      console.log("Error while retrieving the project");
+      console.log(error);
+      res.status(500).json({ message: "Error while retrieving the project" });
     });
 });
 
